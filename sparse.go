@@ -10,7 +10,6 @@ import (
 	"os"
 	"fmt"
 	"sort"
-	"strconv"
 	"math/rand"
 	"image"
 	"image/png"
@@ -168,12 +167,12 @@ func main() {
 		P.AddUnchecked(rnd.Intn(P.rows), rnd.Intn(P.cols))
 	}
 	P.RemoveDuplicates()
-	fmt.Println("HammingWeight of P = " + strconv.Itoa(P.HammingWeight()))
+	fmt.Println("HammingWeight of P =", P.HammingWeight())
 	GT := Transpose(Concatenate(IdentityMatrix(N), P))
 	GT.WriteImage("GT.png")
 	H := Concatenate(Transpose(P), IdentityMatrix(N))
 	H.WriteImage("H.png")
 	HGT := Multiply(H, GT)
-	fmt.Println("HammingWeight of H*GT = " + strconv.Itoa(HGT.HammingWeight()))
+	fmt.Println("HammingWeight of H*GT =", HGT.HammingWeight())
 }
 
