@@ -4,7 +4,9 @@ To the extent possible under law, the author(s) have dedicated all copyright and
 You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 # go run sparse.go
-HammingWeight of P = 498
+HammingWeight of P = 497
+(Min, Max) of HammingWeightsOfRows of P = 0 8
+(Min, Max) of HammingWeightsOfCols of P = 0 5
 Wrote GT.png
 Wrote H.png
 HammingWeight of H*GT = 0
