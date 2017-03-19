@@ -17,11 +17,11 @@ import (
 	"time"
 )
 
-type Position struct {
+type Coordinate struct {
 	row, col int
 }
 
-type ByColRow []Position
+type ByColRow []Coordinate
 func (a ByColRow) Len() int { return len(a) }
 func (a ByColRow) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a ByColRow) Less(i, j int) bool {
@@ -30,7 +30,7 @@ func (a ByColRow) Less(i, j int) bool {
 		a[i].row < a[j].row
 }
 
-type ByRowCol []Position
+type ByRowCol []Coordinate
 func (a ByRowCol) Len() int { return len(a) }
 func (a ByRowCol) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a ByRowCol) Less(i, j int) bool {
@@ -41,23 +41,23 @@ func (a ByRowCol) Less(i, j int) bool {
 
 type Matrix struct {
 	rows, cols int
-	ones []Position
+	ones []Coordinate
 }
 
 func NewMatrix(rows, cols int) Matrix {
-	return Matrix{rows, cols, make([]Position, 0)}
+	return Matrix{rows, cols, make([]Coordinate, 0)}
 }
 
 func IdentityMatrix(dimension int) Matrix {
-	diagonal := make([]Position, dimension)
+	diagonal := make([]Coordinate, dimension)
 	for i := 0; i < dimension; i++ {
-		diagonal[i] = Position{i, i}
+		diagonal[i] = Coordinate{i, i}
 	}
 	return Matrix{dimension, dimension, diagonal}
 }
 
 func CloneMatrix(source Matrix) Matrix {
-	ones := make([]Position, len(source.ones))
+	ones := make([]Coordinate, len(source.ones))
 	copy(ones, source.ones)
 	return Matrix{source.rows, source.cols, ones}
 }
@@ -66,7 +66,7 @@ func (p *Matrix) AddUnchecked(row, col int) {
 	if row < 0 || row >= p.rows || col < 0 || col >= p.cols {
 		panic("row < 0 || row >= p.rows || col < 0 || col >= p.cols")
 	}
-	p.ones = append(p.ones, Position{row, col})
+	p.ones = append(p.ones, Coordinate{row, col})
 }
 
 func (p *Matrix) RemoveDuplicates() {
@@ -87,7 +87,7 @@ func Concatenate(left, right Matrix) Matrix {
 	}
 	rows := left.rows
 	cols := left.cols + right.cols
-	ones := make([]Position, len(left.ones) + len(right.ones))
+	ones := make([]Coordinate, len(left.ones) + len(right.ones))
 	copy(ones, left.ones)
 	for i := 0; i < len(right.ones); i++ {
 		ones[len(left.ones) + i].col = right.ones[i].col + left.cols
@@ -102,16 +102,16 @@ func (p Matrix) HammingWeight() int {
 
 func (p *Matrix) HammingWeightsOfRows() []int {
 	weights := make([]int, p.rows)
-	for _, pos := range p.ones {
-		weights[pos.row]++
+	for _, one := range p.ones {
+		weights[one.row]++
 	}
 	return weights
 }
 
 func (p *Matrix) HammingWeightsOfCols() []int {
 	weights := make([]int, p.cols)
-	for _, pos := range p.ones {
-		weights[pos.col]++
+	for _, one := range p.ones {
+		weights[one.col]++
 	}
 	return weights
 }
@@ -126,10 +126,10 @@ func MinMax(a []int) (int, int) {
 }
 
 func Transpose(source Matrix) Matrix {
-	ones := make([]Position, len(source.ones))
-	for index, pos := range source.ones {
-		ones[index].row = pos.col
-		ones[index].col = pos.row
+	ones := make([]Coordinate, len(source.ones))
+	for index, one := range source.ones {
+		ones[index].row = one.col
+		ones[index].col = one.row
 	}
 	return Matrix{source.cols, source.rows, ones}
 }
@@ -140,7 +140,7 @@ func Multiply(left, right Matrix) Matrix {
 	}
 	rows := left.rows
 	cols := right.cols
-	ones := make([]Position, 0)
+	ones := make([]Coordinate, 0)
 	sort.Sort(ByRowCol(left.ones))
 	sort.Sort(ByColRow(right.ones))
 	for lBegin, lEnd := 0, 0; lBegin < len(left.ones); lBegin = lEnd {
@@ -165,7 +165,7 @@ func Multiply(left, right Matrix) Matrix {
 				l++
 				r++
 			}
-			if sum { ones = append(ones, Position{row, col}) }
+			if sum { ones = append(ones, Coordinate{row, col}) }
 			for ; r < len(right.ones) && col == right.ones[r].col; r++ {}
 		}
 		for ; lEnd < len(left.ones) && row == left.ones[lEnd].row; lEnd++ {}
@@ -175,8 +175,8 @@ func Multiply(left, right Matrix) Matrix {
 
 func (p *Matrix) WriteImage(name string) {
 	img := image.NewGray(image.Rect(0, 0, p.cols, p.rows))
-	for _, pos := range p.ones {
-		img.Set(pos.col, pos.row, color.White)
+	for _, one := range p.ones {
+		img.Set(one.col, one.row, color.White)
 	}
 	file, err := os.Create(name)
 	if err != nil { panic(err) }
