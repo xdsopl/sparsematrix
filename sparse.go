@@ -81,7 +81,7 @@ func (p *Matrix) RemoveDuplicates() {
 	p.ones = p.ones[:j + 1]
 }
 
-func Concatenate(left, right Matrix) Matrix {
+func (left Matrix) Concatenate(right Matrix) Matrix {
 	if left.rows != right.rows {
 		panic("left.rows != right.rows")
 	}
@@ -125,16 +125,16 @@ func MinMax(a []int) (int, int) {
 	return min, max;
 }
 
-func Transpose(source Matrix) Matrix {
-	ones := make([]Coordinate, len(source.ones))
-	for index, one := range source.ones {
+func (p Matrix) Transpose() Matrix {
+	ones := make([]Coordinate, len(p.ones))
+	for index, one := range p.ones {
 		ones[index].row = one.col
 		ones[index].col = one.row
 	}
-	return Matrix{source.cols, source.rows, ones}
+	return Matrix{p.cols, p.rows, ones}
 }
 
-func Multiply(left, right Matrix) Matrix {
+func (left Matrix) Multiply(right Matrix) Matrix {
 	if left.cols != right.rows {
 		panic("left.cols != right.rows")
 	}
@@ -197,11 +197,11 @@ func main() {
 	MinColWeight, MaxColWeight := MinMax(P.HammingWeightsOfCols())
 	fmt.Println("(Min, Max) of HammingWeightsOfRows of P =", MinRowWeight, MaxRowWeight)
 	fmt.Println("(Min, Max) of HammingWeightsOfCols of P =", MinColWeight, MaxColWeight)
-	GT := Transpose(Concatenate(IdentityMatrix(N), P))
+	GT := IdentityMatrix(N).Concatenate(P).Transpose()
 	GT.WriteImage("GT.png")
-	H := Concatenate(Transpose(P), IdentityMatrix(N))
+	H := P.Transpose().Concatenate(IdentityMatrix(N))
 	H.WriteImage("H.png")
-	HGT := Multiply(H, GT)
+	HGT := H.Multiply(GT)
 	fmt.Println("HammingWeight of H*GT =", HGT.HammingWeight())
 }
 
