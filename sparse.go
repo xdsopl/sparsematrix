@@ -173,7 +173,7 @@ func Multiply(left, right Matrix) Matrix {
 	return Matrix{rows, cols, ones}
 }
 
-func (p *Matrix) WriteImage(name string) {
+func (p Matrix) WriteImage(name string) {
 	img := image.NewGray(image.Rect(0, 0, p.cols, p.rows))
 	for _, one := range p.ones {
 		img.Set(one.col, one.row, color.White)
