@@ -324,6 +324,19 @@ func (p *ColVecMat) Add(i, j int) {
 	p.vecs[i].ones = ones[:l]
 }
 
+func (p Matrix) IsIdentity() bool {
+	if p.cols != p.rows || len(p.ones) != p.cols {
+		return false
+	}
+	sort.Sort(ByRowCol(p.ones))
+	for idx, one := range p.ones {
+		if one.col != one.row || idx != one.col {
+			return false
+		}
+	}
+	return true
+}
+
 func (p Matrix) WriteImage(name string) {
 	img := image.NewGray(image.Rect(0, 0, p.cols, p.rows))
 	for _, one := range p.ones {
@@ -408,5 +421,6 @@ func main() {
 		B.WriteImage("B.png")
 		AB.WriteImage("AB.png")
 	}
+	fmt.Println("AB IsIdentity =", AB.IsIdentity())
 }
 
