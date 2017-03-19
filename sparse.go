@@ -375,9 +375,11 @@ func main() {
 	fmt.Println("(Min, Max) of HammingWeightsOfRows of P =", MinRowWeight, MaxRowWeight)
 	fmt.Println("(Min, Max) of HammingWeightsOfCols of P =", MinColWeight, MaxColWeight)
 	GT := IdentityMatrix(N).Concatenate(P).Transpose()
-	GT.WriteImage("GT.png")
 	H := P.Transpose().Concatenate(IdentityMatrix(N))
-	H.WriteImage("H.png")
+	if (N < 1000) {
+		GT.WriteImage("GT.png")
+		H.WriteImage("H.png")
+	}
 	HGT := H.Multiply(GT)
 	fmt.Println("HammingWeight of H*GT =", HGT.HammingWeight())
 
@@ -400,9 +402,11 @@ func main() {
 		A.Add(i, j)
 		B.Add(j, i)
 	}
-	A.WriteImage("A.png")
-	B.WriteImage("B.png")
 	AB := A.ConvertMatrix().Multiply(B.ConvertMatrix())
-	AB.WriteImage("AB.png")
+	if (N < 1000) {
+		A.WriteImage("A.png")
+		B.WriteImage("B.png")
+		AB.WriteImage("AB.png")
+	}
 }
 
