@@ -56,10 +56,10 @@ func IdentityMatrix(dimension int) Matrix {
 	return Matrix{dimension, dimension, diagonal}
 }
 
-func CloneMatrix(source Matrix) Matrix {
-	ones := make([]Coordinate, len(source.ones))
-	copy(ones, source.ones)
-	return Matrix{source.rows, source.cols, ones}
+func (p Matrix) Clone() Matrix {
+	ones := make([]Coordinate, len(p.ones))
+	copy(ones, p.ones)
+	return Matrix{p.rows, p.cols, ones}
 }
 
 func (p *Matrix) AddUnchecked(row, col int) {
