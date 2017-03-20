@@ -32,6 +32,27 @@ func (p Vector) Clone() Vector {
 	return Vector{p.dim, ones}
 }
 
+func (p *Vector) Add(a Vector) Vector {
+	if p.dim != a.dim {
+		panic("p.dim != a.dim");
+	}
+	ones := append(p.ones, a.ones...)
+	sort.Ints(ones)
+	sum := false
+	l := 0
+	for k := 0; k < len(ones); k++ {
+		if ones[k] == ones[l] {
+			sum = !sum
+		} else {
+			if sum { l++ }
+			ones[l] = ones[k]
+			sum = true
+		}
+	}
+	if sum { l++ }
+	return Vector{p.dim, ones[:l]}
+}
+
 type RowVecMat struct {
 	rows, cols int
 	vecs []Vector
@@ -286,42 +307,14 @@ func (p *RowVecMat) Add(i, j int) {
 	if i < 0 || i >= p.cols || j < 0 || j >= p.cols {
 		panic("i < 0 || i >= p.cols || j < 0 || j >= p.cols")
 	}
-	ones := append(p.vecs[i].ones, p.vecs[j].ones...)
-	sort.Ints(ones)
-	sum := false
-	l := 0
-	for k := 0; k < len(ones); k++ {
-		if ones[k] == ones[l] {
-			sum = !sum
-		} else {
-			if sum { l++ }
-			ones[l] = ones[k]
-			sum = true
-		}
-	}
-	if sum { l++ }
-	p.vecs[i].ones = ones[:l]
+	p.vecs[i] = p.vecs[i].Add(p.vecs[j])
 }
 
 func (p *ColVecMat) Add(i, j int) {
 	if i < 0 || i >= p.rows || j < 0 || j >= p.rows {
 		panic("i < 0 || i >= p.rows || j < 0 || j >= p.rows")
 	}
-	ones := append(p.vecs[i].ones, p.vecs[j].ones...)
-	sort.Ints(ones)
-	sum := false
-	l := 0
-	for k := 0; k < len(ones); k++ {
-		if ones[k] == ones[l] {
-			sum = !sum
-		} else {
-			if sum { l++ }
-			ones[l] = ones[k]
-			sum = true
-		}
-	}
-	if sum { l++ }
-	p.vecs[i].ones = ones[:l]
+	p.vecs[i] = p.vecs[i].Add(p.vecs[j])
 }
 
 func (p Matrix) IsIdentity() bool {
