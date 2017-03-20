@@ -328,23 +328,23 @@ func main() {
 	the following idea: $(\prod^{N}_{i}{E_i})^{-1}=(\prod^{N}_{i}{E_i^T})^T$
 	*/
 	A := IdentityRowVecMat(N)
-	B := IdentityRowVecMat(N)
+	BT := IdentityRowVecMat(N)
 	for n := 0; n < 2*N; n++ {
 		var i, j int
 		for i == j { i, j = rnd.Intn(N), rnd.Intn(N) }
 		A.Swap(i, j)
-		B.Swap(j, i)
+		BT.Swap(j, i)
 	}
 	for n := 0; n < N/2; n++ {
 		var i, j int
 		for i == j { i, j = rnd.Intn(N), rnd.Intn(N) }
 		A.Add(i, j)
-		B.Add(j, i)
+		BT.Add(j, i)
 	}
-	AB := A.ConvertMatrix().Multiply(B.ConvertMatrix().Transpose())
+	AB := A.ConvertMatrix().Multiply(BT.ConvertMatrix().Transpose())
 	if (N < 1000) {
 		A.WriteImage("A.png")
-		B.WriteImage("B.png")
+		BT.WriteImage("BT.png")
 		AB.WriteImage("AB.png")
 	}
 	fmt.Println("AB IsIdentity =", AB.IsIdentity())
