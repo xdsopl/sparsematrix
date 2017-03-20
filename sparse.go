@@ -59,8 +59,8 @@ type RowVecMat struct {
 }
 
 func NewRowVecMat(rows, cols int) RowVecMat {
-	vecs := make([]Vector, cols)
-	for i := range vecs { vecs[i] = NewVector(rows) }
+	vecs := make([]Vector, rows)
+	for i := range vecs { vecs[i] = NewVector(cols) }
 	return RowVecMat{rows, cols, vecs}
 }
 
@@ -74,35 +74,9 @@ func IdentityRowVecMat(dim int) RowVecMat {
 }
 
 func (p RowVecMat) Clone() RowVecMat {
-	vecs := make([]Vector, p.cols)
-	for i, vec := range p.vecs { vecs[i] = vec.Clone() }
-	return RowVecMat{p.rows, p.cols, vecs}
-}
-
-type ColVecMat struct {
-	rows, cols int
-	vecs []Vector
-}
-
-func NewColVecMat(rows, cols int) ColVecMat {
-	vecs := make([]Vector, rows)
-	for i := range vecs { vecs[i] = NewVector(cols) }
-	return ColVecMat{rows, cols, vecs}
-}
-
-func IdentityColVecMat(dim int) ColVecMat {
-	vecs := make([]Vector, dim)
-	for i := 0; i < dim; i++ {
-		vecs[i] = Vector{dim, make([]int, 1)}
-		vecs[i].ones[0] = i
-	}
-	return ColVecMat{dim, dim, vecs}
-}
-
-func (p ColVecMat) Clone() ColVecMat {
 	vecs := make([]Vector, p.rows)
 	for i, vec := range p.vecs { vecs[i] = vec.Clone() }
-	return ColVecMat{p.rows, p.cols, vecs}
+	return RowVecMat{p.rows, p.cols, vecs}
 }
 
 type Coordinate struct {
@@ -157,20 +131,6 @@ func (p RowVecMat) ConvertMatrix() Matrix {
 	count = 0
 	for col, vec := range p.vecs {
 		for _, row := range vec.ones {
-			ones[count] = Coordinate{row, col}
-			count++
-		}
-	}
-	return Matrix{p.rows, p.cols, ones}
-}
-
-func (p ColVecMat) ConvertMatrix() Matrix {
-	count := 0
-	for _, vec := range p.vecs { count += len(vec.ones) }
-	ones := make([]Coordinate, count)
-	count = 0
-	for row, vec := range p.vecs {
-		for _, col := range vec.ones {
 			ones[count] = Coordinate{row, col}
 			count++
 		}
@@ -296,23 +256,9 @@ func (p *RowVecMat) Swap(i, j int) {
 	p.vecs[i], p.vecs[j] = p.vecs[j], p.vecs[i]
 }
 
-func (p *ColVecMat) Swap(i, j int) {
-	if i < 0 || i >= p.rows || j < 0 || j >= p.rows {
-		panic("i < 0 || i >= p.rows || j < 0 || j >= p.rows")
-	}
-	p.vecs[i], p.vecs[j] = p.vecs[j], p.vecs[i]
-}
-
 func (p *RowVecMat) Add(i, j int) {
 	if i < 0 || i >= p.cols || j < 0 || j >= p.cols {
 		panic("i < 0 || i >= p.cols || j < 0 || j >= p.cols")
-	}
-	p.vecs[i] = p.vecs[i].Add(p.vecs[j])
-}
-
-func (p *ColVecMat) Add(i, j int) {
-	if i < 0 || i >= p.rows || j < 0 || j >= p.rows {
-		panic("i < 0 || i >= p.rows || j < 0 || j >= p.rows")
 	}
 	p.vecs[i] = p.vecs[i].Add(p.vecs[j])
 }
@@ -342,19 +288,6 @@ func (p Matrix) WriteImage(name string) {
 }
 
 func (p RowVecMat) WriteImage(name string) {
-	img := image.NewGray(image.Rect(0, 0, p.cols, p.rows))
-	for col, vec := range p.vecs {
-		for _, row := range vec.ones {
-			img.Set(col, row, color.White)
-		}
-	}
-	file, err := os.Create(name)
-	if err != nil { panic(err) }
-	if err := png.Encode(file, img); err != nil { panic(err) }
-	fmt.Println("Wrote " + name)
-}
-
-func (p ColVecMat) WriteImage(name string) {
 	img := image.NewGray(image.Rect(0, 0, p.cols, p.rows))
 	for row, vec := range p.vecs {
 		for _, col := range vec.ones {
@@ -395,7 +328,7 @@ func main() {
 	the following idea: $(\prod^{N}_{i}{E_i})^{-1}=(\prod^{N}_{i}{E_i^T})^T$
 	*/
 	A := IdentityRowVecMat(N)
-	B := IdentityColVecMat(N)
+	B := IdentityRowVecMat(N)
 	for n := 0; n < 2*N; n++ {
 		var i, j int
 		for i == j { i, j = rnd.Intn(N), rnd.Intn(N) }
@@ -408,7 +341,7 @@ func main() {
 		A.Add(i, j)
 		B.Add(j, i)
 	}
-	AB := A.ConvertMatrix().Multiply(B.ConvertMatrix())
+	AB := A.ConvertMatrix().Multiply(B.ConvertMatrix().Transpose())
 	if (N < 1000) {
 		A.WriteImage("A.png")
 		B.WriteImage("B.png")
