@@ -10,12 +10,15 @@ You should have received a copy of the CC0 Public Domain Dedication along with t
 # Second example is playing with huge random sparse matrices and their inverses.
 
 We load this image as a sparse vector:
+
 ![data.png](https://github.com/xdsopl/sparse/raw/master/data.png)
 
 Do a matrix and column vector multiplication:
+
 ![encoded.png](https://github.com/xdsopl/sparse/raw/master/encoded.png)
 
 To get the original vector, we do another matrix and column vector multiplication but using the inverse of the same matrix:
+
 ![decoded.png](https://github.com/xdsopl/sparse/raw/master/decoded.png)
 
 ```
