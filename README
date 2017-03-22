@@ -10,6 +10,15 @@ HammingWeight of P = 497
 Wrote GT.png
 Wrote H.png
 HammingWeight of H*GT = 0
+Load data.png
+Wrote A.png
+Wrote BT.png
+AB IsIdentity = true
+Wrote AB.png
+Wrote encoded.png
+Wrote decoded.png
 
 # feh GT.png H.png
+# feh A.png BT.png AB.png
+# feh data.png encoded.png decoded.png
 

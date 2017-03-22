@@ -247,6 +247,42 @@ func (left Matrix) Multiply(right Matrix) Matrix {
 	return Matrix{left.rows, right.cols, ones}
 }
 
+func (left Matrix) MultiplyColVec(right Vector) Vector {
+	if left.cols != right.dim {
+		panic("left.cols != right.dim")
+	}
+	ones := make([]int, 0)
+	sort.Sort(ByRowCol(left.ones))
+	sort.Ints(right.ones)
+	for lBegin, lEnd := 0, 0; lBegin < len(left.ones); lBegin = lEnd {
+		row := left.ones[lBegin].row
+		for r := 0; r < len(right.ones); {
+			sum := false
+			for l := lBegin; l < len(left.ones) && r < len(right.ones); {
+				if left.ones[l].row != row {
+					if lEnd < l { lEnd = l }
+					break
+				}
+				if left.ones[l].col > right.ones[r] {
+					r++
+					continue
+				}
+				if left.ones[l].col < right.ones[r] {
+					l++
+					continue
+				}
+				sum = !sum
+				l++
+				r++
+			}
+			if sum { ones = append(ones, row) }
+			for ; r < len(right.ones); r++ {}
+		}
+		for ; lEnd < len(left.ones) && row == left.ones[lEnd].row; lEnd++ {}
+	}
+	return Vector{right.dim, ones}
+}
+
 func (p *RowVecMat) Swap(i, j int) {
 	if i < 0 || i >= p.cols || j < 0 || j >= p.cols {
 		panic("i < 0 || i >= p.cols || j < 0 || j >= p.cols")
@@ -298,6 +334,37 @@ func (p RowVecMat) WriteImage(name string) {
 	fmt.Println("Wrote " + name)
 }
 
+func LoadImageVector(name string) (int, int, Vector) {
+	file, err := os.Open(name)
+	if err != nil { panic(err) }
+	img, _, err := image.Decode(file)
+	if err != nil { panic(err) }
+	dim := img.Bounds().Dx() * img.Bounds().Dy()
+	ones := make([]int, 0)
+	for i, y := 0, img.Bounds().Min.Y; y < img.Bounds().Max.Y; y++ {
+		for x := img.Bounds().Min.X; x < img.Bounds().Max.X; x++ {
+			if color.GrayModel.Convert(img.At(x, y)).(color.Gray).Y > 186 {
+				ones = append(ones, i)
+			}
+			i++
+		}
+	}
+	fmt.Println("Load " + name)
+	return img.Bounds().Dx(), img.Bounds().Dy(), Vector{dim, ones}
+}
+
+func (p Vector) WriteImage(name string, w, h int) {
+	if w * h != p.dim { panic("w * h != p.dim") }
+	img := image.NewGray(image.Rect(0, 0, w, h))
+	for _, i := range p.ones {
+		img.Set(i % w, i / w, color.White)
+	}
+	file, err := os.Create(name)
+	if err != nil { panic(err) }
+	if err := png.Encode(file, img); err != nil { panic(err) }
+	fmt.Println("Wrote " + name)
+}
+
 func main() {
 	N := 500
 	P := NewMatrix(N, N)
@@ -320,6 +387,8 @@ func main() {
 	HGT := H.Multiply(GT)
 	fmt.Println("HammingWeight of H*GT =", HGT.HammingWeight())
 
+	w, h, msg := LoadImageVector("data.png")
+	N = w * h
 	/*
 	Finding the inverse for a huge (random but regular) GF(2) sparse matrix
 	is expensive. So let's create one and it's inverse at the same time using
@@ -338,12 +407,16 @@ func main() {
 		A.Add(i, j)
 		BT.Add(j, i)
 	}
-	AB := A.ConvertMatrix().Multiply(BT.ConvertMatrix().Transpose())
-	if (N < 1000) {
+	if (N <= 1024) {
 		A.WriteImage("A.png")
 		BT.WriteImage("BT.png")
+		AB := A.ConvertMatrix().Multiply(BT.ConvertMatrix().Transpose())
+		fmt.Println("AB IsIdentity =", AB.IsIdentity())
 		AB.WriteImage("AB.png")
 	}
-	fmt.Println("AB IsIdentity =", AB.IsIdentity())
+	encoded := A.ConvertMatrix().MultiplyColVec(msg)
+	encoded.WriteImage("encoded.png", w, h)
+	decoded := BT.ConvertMatrix().Transpose().MultiplyColVec(encoded)
+	decoded.WriteImage("decoded.png", w, h)
 }
 
