@@ -214,8 +214,6 @@ func (left Matrix) Multiply(right Matrix) Matrix {
 	if left.cols != right.rows {
 		panic("left.cols != right.rows")
 	}
-	rows := left.rows
-	cols := right.cols
 	ones := make([]Coordinate, 0)
 	sort.Sort(ByRowCol(left.ones))
 	sort.Sort(ByColRow(right.ones))
@@ -246,7 +244,7 @@ func (left Matrix) Multiply(right Matrix) Matrix {
 		}
 		for ; lEnd < len(left.ones) && row == left.ones[lEnd].row; lEnd++ {}
 	}
-	return Matrix{rows, cols, ones}
+	return Matrix{left.rows, right.cols, ones}
 }
 
 func (p *RowVecMat) Swap(i, j int) {
