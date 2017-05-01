@@ -11,15 +11,15 @@ You should have received a copy of the CC0 Public Domain Dedication along with t
 
 We load this image as a sparse vector:
 
-![data.png](https://github.com/xdsopl/sparse/raw/master/doc/data.png)
+![data.png](https://raw.githubusercontent.com/xdsopl/sparsematrix/master/doc/data.png)
 
 Do a matrix and column vector multiplication:
 
-![encoded.png](https://github.com/xdsopl/sparse/raw/master/doc/encoded.png)
+![encoded.png](https://raw.githubusercontent.com/xdsopl/sparsematrix/master/doc/encoded.png)
 
 To get the original vector, we do another matrix and column vector multiplication but using the inverse of the same matrix:
 
-![decoded.png](https://github.com/xdsopl/sparse/raw/master/doc/decoded.png)
+![decoded.png](https://raw.githubusercontent.com/xdsopl/sparsematrix/master/doc/decoded.png)
 
 ```
 # go run sparse.go
